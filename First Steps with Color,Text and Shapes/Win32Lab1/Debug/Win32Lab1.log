@@ -1,0 +1,4 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Win32Lab1.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Win32Lab1_1.cpp
+  Win32Lab1.vcxproj -> D:\Visual Studio\Visual Studio 2015\Projects\FirstWinApi\Debug\Win32Lab1_1.exe
+  Win32Lab1.vcxproj -> D:\Visual Studio\Visual Studio 2015\Projects\FirstWinApi\Debug\Win32Lab1_1.pdb (Full PDB)

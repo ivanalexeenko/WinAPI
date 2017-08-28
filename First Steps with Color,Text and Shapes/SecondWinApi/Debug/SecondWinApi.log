@@ -1,0 +1,6 @@
+﻿  SecondWinApi.cpp
+d:\visual studio\visual studio 2015\projects\firstwinapi\secondwinapi\secondwinapi.cpp(13): error C2371: 'WNDCLASS': redefinition; different basic types
+  c:\program files (x86)\windows kits\8.1\include\um\winuser.h(1743): note: see declaration of 'WNDCLASS'
+d:\visual studio\visual studio 2015\projects\firstwinapi\secondwinapi\secondwinapi.cpp(13): error C2371: 'PWNDCLASS': redefinition; different basic types
+  c:\program files (x86)\windows kits\8.1\include\um\winuser.h(1744): note: see declaration of 'PWNDCLASS'
+d:\visual studio\visual studio 2015\projects\firstwinapi\secondwinapi\secondwinapi.cpp(20): warning C4091: '': ignored on left of 'PWNDCLASSW' when no variable is declared
