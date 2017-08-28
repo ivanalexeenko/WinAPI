@@ -1,0 +1,7 @@
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V140\Microsoft.CppBuild.targets(392,5): warning MSB8028: The intermediate directory (Debug\) contains files shared from another project (Win32Lab3_4.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  Win32Lab3_5.cpp
+d:\visual studio\visual studio 2015\projects\thirdwinapi\win32lab3_4\win32lab3_5.cpp(77): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+d:\visual studio\visual studio 2015\projects\thirdwinapi\win32lab3_4\win32lab3_5.cpp(103): warning C4244: '=': conversion from 'double' to 'LONG', possible loss of data
+d:\visual studio\visual studio 2015\projects\thirdwinapi\win32lab3_4\win32lab3_5.cpp(178): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Win32Lab3_4.vcxproj -> D:\Visual Studio\Visual Studio 2015\Projects\ThirdWinApi\Debug\Win32Lab3_5.exe
+  Win32Lab3_4.vcxproj -> D:\Visual Studio\Visual Studio 2015\Projects\ThirdWinApi\Debug\Win32Lab3_5.pdb (Full PDB)
