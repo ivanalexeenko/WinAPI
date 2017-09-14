@@ -1,0 +1,6 @@
+﻿  kHashTableWinApi.cpp
+d:\visual studio\visual studio 2015\projects\khashtablewinapi\khashtablewinapi\khashtablewinapi.cpp(26): warning C4244: '+=': conversion from 'double' to 'int', possible loss of data
+d:\visual studio\visual studio 2015\projects\khashtablewinapi\khashtablewinapi\khashtablewinapi.cpp(182): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+d:\visual studio\visual studio 2015\projects\khashtablewinapi\khashtablewinapi\khashtablewinapi.cpp(195): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  kHashTableWinApi.vcxproj -> D:\Visual Studio\Visual Studio 2015\Projects\kHashTableWinApi\Debug\kHashTableWinApi.exe
+  kHashTableWinApi.vcxproj -> D:\Visual Studio\Visual Studio 2015\Projects\kHashTableWinApi\Debug\kHashTableWinApi.pdb (Full PDB)
