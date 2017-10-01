@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "kHashTableWinApi.h"
 #include "kHashTable.h"
+#include "Controller.h"
 #define MAX_LOADSTRING 100
 
 // Global Variables:
@@ -9,25 +10,6 @@ int size_2 = 21;
 kHashTable Table_ONE(size_1);
 kHashTable Table_TWO(size_2);
 
-string ReadText(LPARAM lParam)
-{
-	int length = SendMessage((HWND)lParam, WM_GETTEXTLENGTH, 0, 0);
-	char *buffer = new char[length];
-	SendMessage((HWND)lParam, WM_GETTEXT, (WPARAM)(length + 1), (LPARAM)buffer);
-	string temp_num_str(buffer);
-	return temp_num_str;
-}
-int FromStrToInt(string& value_1 )
-{
-	int val_1 = 0;
-	int deg = value_1.length() - 1;
-	for (auto i : value_1)
-	{
-		val_1 += ((i - '0') * pow(10, deg));
-		deg--;
-	}
-	return val_1;
-}
 
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
@@ -122,28 +104,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
-
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static string s = "Check my HashTable realisation out =)";
 	static int FontSize = 20;
 	static HDC hdc;
 	static POINT Center;
 	static RECT Rect;
-	static HBRUSH BG;
-	static HBITMAP BG_BIT;
-	static HFONT hFont;
-	
-    switch (message)
-    {
+	static HBITMAP BG_BIT = LoadBitmap((HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), MAKEINTRESOURCE(IDB_CHALK));
+	static HBRUSH BG = CreatePatternBrush(BG_BIT);
+	static HFONT hFont = CreateFont(FontSize, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+		CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, TEXT("Snap ITC"));
+	static View view;
+	switch (message)
+	{
 	case WM_CREATE:
 	{
-		string s = "Check my HashTable realisation out =)";
 		SetWindowTextW(hWnd, (LPCWSTR)s.c_str());
-		
-		hFont = CreateFont(FontSize, 0, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
-			CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY, VARIABLE_PITCH, TEXT("Snap ITC"));
-		BG_BIT = LoadBitmap((HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), MAKEINTRESOURCE(IDB_CHALK));
-		BG = CreatePatternBrush(BG_BIT);
 		SetClassLong(hWnd, GCL_HBRBACKGROUND, (LONG)BG);
 		GetClientRect(hWnd, &Rect);
 		Center.x = (Rect.right - Rect.left) / 2;
@@ -151,86 +128,67 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            switch (wmId)
-            {
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-			case ID_CHECKTHISOUT_MYHASHTABLE:
-				DialogBox(hInst, MAKEINTRESOURCE(IDD_TABLE), hWnd, HashTable);
-				InvalidateRect(hWnd, &Rect, TRUE);
-				break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            hdc = BeginPaint(hWnd, &ps);
-			SetBkMode(hdc, TRANSPARENT);
-			SelectObject(hdc, hFont);
-			SetTextColor(hdc,RGB(255,255,255));
-			TextOut(hdc, Center.x / 3, 0, (LPCSTR)"kHashTable_1", strlen("kHashTable_1"));
-			TextOut(hdc, Center.x / 0.7, 0, (LPCSTR)"kHashTable_2", strlen("kHashTable_2"));
-			int format = Center.y / 10;
-			int index = 0;
-			for (kHashTable::Iterator i = Table_ONE.Begin(); i != Table_ONE.End(); i++)
-			{
-				string str = "[" + to_string(index++) + "]" + "  Key : " + (i->first) + "  Value : " + to_string(i->second);
-				TextOut(hdc, Center.x / 6, format += 20,str.c_str(), strlen(str.c_str()));
-			}
-			index = 0;
-			format = Center.y / 10;
-			for (kHashTable::Iterator i = Table_TWO.Begin(); i != Table_TWO.End(); i++)
-			{
-				string str = "[" + to_string(index++) + "]" + "  Key : " + (i->first) + "  Value : " + to_string(i->second);
-				TextOut(hdc, Center.x / 0.8, format += 20, str.c_str(), strlen(str.c_str()));
-			}
-
-            EndPaint(hWnd, &ps);
-			
-        }
-        break;
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
+	case WM_COMMAND:
+	{
+		int wmId = LOWORD(wParam);
+		switch (wmId)
+		{
+		case IDM_ABOUT:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+			break;
+		case ID_CHECKTHISOUT_MYHASHTABLE:
+			DialogBox(hInst, MAKEINTRESOURCE(IDD_TABLE), hWnd, HashTable);
+			InvalidateRect(hWnd, &Rect, TRUE);
+			break;
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+	}
+	break;
+	case WM_PAINT:
+	{
+		View v(Table_ONE, Table_TWO, hdc, hWnd, hFont, Center);
+		view = v;
+		view.update();
+		break;
+	}
+	
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
 }
 
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    UNREFERENCED_PARAMETER(lParam);
-    switch (message)
-    {
-    case WM_INITDIALOG:
-        return (INT_PTR)TRUE;
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
 
-    case WM_COMMAND:
-        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-        {
-            EndDialog(hDlg, LOWORD(wParam));
-            return (INT_PTR)TRUE;
-        }
-        break;
-    }
-    return (INT_PTR)FALSE;
+	case WM_COMMAND:
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
 }
 
 INT_PTR CALLBACK HashTable(HWND hTab, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	static string key_1, key_2, value_1, value_2;
 	static string del_key_1, del_key_2;
+	static Controller control;
 	UNREFERENCED_PARAMETER(lParam);
 	switch (message)
 	{
@@ -257,181 +215,100 @@ INT_PTR CALLBACK HashTable(HWND hTab, UINT message, WPARAM wParam, LPARAM lParam
 		{
 		case IDC_EQUAL:
 		{
-			Table_ONE = Table_TWO;
-
+			control.equalize(Table_ONE, Table_TWO);
 			break;
 		}
 		case IDC_SWAP:
 		{
-			Swap(Table_ONE, Table_TWO);
+			control.swap(Table_ONE, Table_TWO);
 			break;
 		}
 		case IDC_KEY_1:
 		{
-			switch (HIWORD(wParam))
-			{
-			case EN_KILLFOCUS:
-			{
-
-				key_1 = ReadText(lParam);
-				break;
-			}
-
-			}
+			control.read_str(lParam, wParam, key_1);
 			break;
 		}
 		case IDC_VALUE_1:
 		{
-			switch (HIWORD(wParam))
-			{
-			case EN_KILLFOCUS:
-			{
-
-				value_1 = ReadText(lParam);
-				break;
-			}
-
-			}
+			control.read_str(lParam,wParam,value_1);
 			break;
 		}
 		case IDC_KEY_2:
 		{
-			switch (HIWORD(wParam))
-			{
-			case EN_KILLFOCUS:
-			{
-				key_2 = ReadText(lParam);
-				break;
-			}
-
-			}
+			control.read_str(lParam, wParam, key_2);
 			break;
 		}
 		case IDC_VALUE_2:
 		{
-			switch (HIWORD(wParam))
-			{
-			case EN_KILLFOCUS:
-			{
-				value_2 = ReadText(lParam);
-				break;
-			}
-
-			}
+			control.read_str(lParam, wParam, value_2);
 			break;
 		}
 		case ID_EMPLACE_1:
 		{
-			if (key_1.length() != 0 && value_1.length() != 0)
-			{
-
-				Table_ONE.Emplace(key_1, FromStrToInt(value_1));
-			}
-
+			control.emplace(Table_ONE, key_1, value_1);
 			break;
 		}
 		case ID_EMPLACE_2:
 		{
-			if (key_2.length() != 0 && value_2.length() != 0)
-			{
-				Table_TWO.Emplace(key_2, FromStrToInt(value_2));
-			}
-
+			control.emplace(Table_TWO, key_2, value_2);
 			break;
 		}
 		case IDC_DEL_K_1:
 		{
-			switch (HIWORD(wParam))
-			{
-			case EN_KILLFOCUS:
-			{
-				del_key_1 = ReadText(lParam);
-				break;
-			}
-
-			}
+			control.read_str(lParam, wParam, del_key_1);
 			break;
 		}
 		case IDC_DEL_K_2:
 		{
-			switch (HIWORD(wParam))
-			{
-			case EN_KILLFOCUS:
-			{
-				del_key_2 = ReadText(lParam);
-				break;
-			}
-
-			}
+			control.read_str(lParam, wParam, del_key_2);
+			break;
 		}
 		case IDC_DELETE_1:
 		{
-			if (del_key_1.length() != 0)
-			{
-				Table_ONE.Delete(del_key_1);
-			}
+			control.delete_elem(Table_ONE, del_key_1);
 			break;
 		}
 		case IDC_DELETE_2:
 		{
-			if (del_key_2.length() != 0)
-			{
-				Table_TWO.Delete(del_key_2);
-			}
+			control.delete_elem(Table_TWO, del_key_2);
 			break;
 		}
 		case IDC_CLEAR_1:
 		{
-			Table_ONE.Clear();
+			control.clear(Table_ONE);
 			break;
 		}
 		case IDC_CLEAR_2:
 		{
-			Table_TWO.Clear();
+			control.clear(Table_TWO);
 			break;
 		}
 		case IDC_FINITA:
 		{
-			string buf;
-			bool result = Table_ONE.IsEmpty();
-			if (result == true)
-			{
-				buf = "true";
-			}
-			else buf = "false";
-			SendMessage(GetDlgItem(hTab, IDC_EMPTY_1), WM_SETTEXT, 0, (LPARAM)((buf).c_str()));
-
-			result = Table_ONE.IsFull();
-			if (result == true)
-			{
-				buf = "true";
-			}
-			else buf = "false";
-			SendMessage(GetDlgItem(hTab, IDC_FULL_1), WM_SETTEXT, 0, (LPARAM)((buf).c_str()));
-
-			SendMessage(GetDlgItem(hTab, IDC_SIZE_1), WM_SETTEXT, 0, (LPARAM)to_string(Table_ONE.Size()).c_str());
-
-			result = Table_TWO.IsEmpty();
-
-			if (result == true)
-			{
-				buf = "true";
-			}
-			else buf = "false";
-
 			
-			SendMessage(GetDlgItem(hTab, IDC_EMPTY_2), WM_SETTEXT, 0, (LPARAM)((buf).c_str()));
+			string result = control.is_empty(Table_ONE);
 
-			result = Table_TWO.IsFull();
-			if (result == true)
-			{
-				buf = "true";
-			}
-			else buf = "false";
+			SendMessage(GetDlgItem(hTab, IDC_EMPTY_1), WM_SETTEXT, 0, (LPARAM)((result).c_str()));
 
-			SendMessage(GetDlgItem(hTab, IDC_FULL_2), WM_SETTEXT, 0, (LPARAM)((buf).c_str()));
+			result = control.is_full(Table_ONE);
 
-			SendMessage(GetDlgItem(hTab, IDC_SIZE_2), WM_SETTEXT, 0, (LPARAM)to_string(Table_TWO.Size()).c_str());
+			SendMessage(GetDlgItem(hTab, IDC_FULL_1), WM_SETTEXT, 0, (LPARAM)((result).c_str()));
+
+			result = control.size(Table_ONE);
+
+			SendMessage(GetDlgItem(hTab, IDC_SIZE_1), WM_SETTEXT, 0, (LPARAM)(result).c_str());
+
+			result = control.is_empty(Table_TWO);
+
+			SendMessage(GetDlgItem(hTab, IDC_EMPTY_2), WM_SETTEXT, 0, (LPARAM)((result).c_str()));
+
+			result = control.is_full(Table_TWO);
+
+			SendMessage(GetDlgItem(hTab, IDC_FULL_2), WM_SETTEXT, 0, (LPARAM)((result).c_str()));
+
+			result = control.size(Table_TWO);
+
+			SendMessage(GetDlgItem(hTab, IDC_SIZE_2), WM_SETTEXT, 0, (LPARAM)(result).c_str());
 
 
 

@@ -10,6 +10,27 @@ int Hash(const string & key)
 	return hash;
 }
 
+string ReadText(LPARAM lParam)
+{
+	int length = SendMessage((HWND)lParam, WM_GETTEXTLENGTH, 0, 0);
+	char *buffer = new char[length];
+	SendMessage((HWND)lParam, WM_GETTEXT, (WPARAM)(length + 1), (LPARAM)buffer);
+	string temp_num_str(buffer);
+	return temp_num_str;
+}
+
+int FromStrToInt(string & value_1)
+{
+	int val_1 = 0;
+	int deg = value_1.length() - 1;
+	for (auto i : value_1)
+	{
+		val_1 += ((i - '0') * pow(10, deg));
+		deg--;
+	}
+	return val_1;
+}
+
 ostream & operator<<(ostream & os, kHashTable & kHT)
 {
 	for (int i = 0; i < kHT.size; i++)
@@ -130,6 +151,7 @@ kHashTable & kHashTable::operator=(const kHashTable & kHT)
 		}
 		added_elem = kHT.added_elem;
 	}
+	NotifyUpdate();
 	return *this;
 }
 
@@ -145,6 +167,7 @@ kHashTable & kHashTable::operator=(kHashTable && kHT)
 	kHT.added_elem = 0;
 	kHT.arr = NULL;
 	kHT.size = 0;
+	NotifyUpdate();
 	return *this;
 }
 
@@ -155,18 +178,21 @@ pair<string, int>& kHashTable::operator[](int index)
 
 bool kHashTable::IsEmpty()
 {
+	NotifyUpdate();
 	if (added_elem == 0) return true;
 	else return false;
 }
 
 bool kHashTable::IsFull()
 {
+	NotifyUpdate();
 	if (size == added_elem) return true;
 	else return false;
 }
 
 int kHashTable::Size()
 {
+	NotifyUpdate();
 	return size;
 }
 
@@ -223,6 +249,7 @@ bool kHashTable::Insert(const string & key, const int value)
 	{
 		arr[index] = pair<string, int>(key, value);
 		added_elem++;
+		NotifyUpdate();
 		return true;
 	}
 	else
@@ -237,12 +264,13 @@ bool kHashTable::Insert(const string & key, const int value)
 		{
 			arr[index] = pair<string, int>(key, value);
 			added_elem++;
+			NotifyUpdate();
 			return true;
 		}
 		else return false;
 
 	}
-
+	
 }
 
 bool kHashTable::Insert(const pair<string, int>& elem)
@@ -264,6 +292,7 @@ bool kHashTable::Insert(INIT & args, ...)
 	{
 		Insert(*i);
 	}
+
 	return Insert(*(args.end() - 1));
 }
 
@@ -280,6 +309,7 @@ bool kHashTable::Append(INIT & list)
 void kHashTable::Clear()
 {
 	*this = kHashTable(size);
+	NotifyUpdate();
 }
 
 bool kHashTable::Delete(string & key)
@@ -292,6 +322,7 @@ bool kHashTable::Delete(string & key)
 		{
 			arr[index] = pair<string, int>(EMPTYNESS_KEY, EMPTYNESS_VAL);
 			added_elem--;
+			NotifyUpdate();
 			found = true;
 		}
 	}
@@ -302,6 +333,7 @@ bool kHashTable::Delete(string & key)
 		{
 			arr[index] = pair<string, int>(EMPTYNESS_KEY, EMPTYNESS_VAL);
 			added_elem--;
+			NotifyUpdate();
 			found = true;
 		}
 	}
@@ -363,3 +395,78 @@ bool kHashTable::Iterator::operator!=(const Iterator & second)
 {
 	return ptr != second.ptr;
 }
+
+View::View()
+{
+	kHT_1 = kHashTable();
+	kHT_2 = kHashTable();
+	hdc = NULL;
+	hWnd = NULL;
+	hFont = NULL;
+	Center.x = 0;
+	Center.y = 0;
+}
+
+View::View(kHashTable & k_1, kHashTable & k_2, HDC _hdc, HWND _hWnd, HFONT _hFont, POINT _Center)
+{
+	kHT_1 = k_1;
+	kHT_2 = k_2;
+	hdc = _hdc;
+	hWnd = _hWnd;
+	hFont = _hFont;
+	Center = _Center;
+
+}
+
+View & View::operator=(View & v)
+{
+	kHT_1 = v.kHT_1;
+	kHT_2 = v.kHT_2;
+	hdc = v.hdc;
+	hWnd = v.hWnd;
+	hFont = v.hFont;
+	Center = v.Center;
+	return *this;
+}
+
+void View::update()
+{
+	PAINTSTRUCT ps;
+	hdc = BeginPaint(hWnd, &ps);
+	SetBkMode(hdc, TRANSPARENT);
+	SelectObject(hdc, hFont);
+	SetTextColor(hdc, RGB(255, 255, 255));
+	TextOut(hdc, Center.x / 3, 0, (LPCSTR)"kHashTable_1", strlen("kHashTable_1"));
+	TextOut(hdc, Center.x / 0.7, 0, (LPCSTR)"kHashTable_2", strlen("kHashTable_2"));
+	int format = Center.y / 10;
+	int index = 0;
+	for (kHashTable::Iterator i = kHT_1.Begin(); i != kHT_1.End(); i++)
+	{
+		string str = "[" + to_string(index++) + "]" + "  Key : " + (i->first) + "  Value : " + to_string(i->second);
+		TextOut(hdc, Center.x / 6, format += 20, str.c_str(), strlen(str.c_str()));
+	}
+	index = 0;
+	format = Center.y / 10;
+	for (kHashTable::Iterator i = kHT_2.Begin(); i != kHT_2.End(); i++)
+	{
+		string str = "[" + to_string(index++) + "]" + "  Key : " + (i->first) + "  Value : " + to_string(i->second);
+		TextOut(hdc, Center.x / 0.8, format += 20, str.c_str(), strlen(str.c_str()));
+	}
+
+	EndPaint(hWnd, &ps);
+}
+
+
+void Observable::AddObserver(Observer * observer)
+{
+	observers.push_back(observer);
+}
+
+void Observable::NotifyUpdate()
+{
+	for (auto i : observers)
+	{
+		i->update();
+	}
+}
+

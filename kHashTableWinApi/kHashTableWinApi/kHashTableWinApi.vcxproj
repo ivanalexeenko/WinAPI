@@ -145,6 +145,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Controller.h" />
     <ClInclude Include="kHashTable.h" />
     <ClInclude Include="kHashTableWinApi.h" />
     <ClInclude Include="Resource.h" />
@@ -152,6 +153,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Controller.cpp" />
     <ClCompile Include="kHashTable.cpp" />
     <ClCompile Include="kHashTableWinApi.cpp" />
     <ClCompile Include="stdafx.cpp">

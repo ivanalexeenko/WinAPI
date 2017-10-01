@@ -1,9 +1,12 @@
 #pragma once
+#include <windows.h>
 #include <iostream>
 #include <initializer_list>
 #include <iterator>
 #include <string>
 #include <algorithm>
+#include <vector>
+
 #define _CRT_SECURE_NO_WARNINGS
 #define EMPTYNESS_KEY "THIS_CELL_IS_EMPTY"
 #define EMPTYNESS_VAL 0
@@ -11,7 +14,25 @@
 #define PAIR pair<string,int>
 using namespace std;
 int Hash(const string &key);
-class kHashTable
+string ReadText(LPARAM lParam);
+int FromStrToInt(string& value_1);
+
+class Observer
+{
+public:
+	virtual void update() = 0;
+};
+
+class Observable
+{
+public:
+	void AddObserver(Observer * observer);
+	void NotifyUpdate();
+private:
+	vector<Observer*> observers;
+};
+
+class kHashTable : public Observable
 {
 private:
 	pair<string, int> *arr;
@@ -72,5 +93,24 @@ public:
 	void Clear();
 	bool Delete(string &key);
 };
+
+class View : public Observer
+{
+private:
+	kHashTable kHT_1;
+	kHashTable kHT_2;
+	HDC hdc;
+	HWND hWnd;
+	HFONT hFont;
+	POINT Center;
+public:
+	View();
+	View(kHashTable &k_1, kHashTable &k_2,HDC _hdc ,HWND _hWnd,HFONT _hFont,POINT _Center);
+	View &operator = (View & v);
+	virtual void update();
+};
+
+
+
 kHashTable CreateHashTable(INIT & list);
 void Swap(kHashTable &kHT_1, kHashTable &kHT_2 );
