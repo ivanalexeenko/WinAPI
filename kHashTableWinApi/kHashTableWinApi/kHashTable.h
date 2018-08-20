@@ -114,3 +114,4 @@ public:
 
 kHashTable CreateHashTable(INIT & list);
 void Swap(kHashTable &kHT_1, kHashTable &kHT_2 );
+
